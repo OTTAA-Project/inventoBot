@@ -168,7 +168,7 @@ export default new CommandBuilder()
 				const name = interaction.options.getString('name');
 				const quantity = interaction.options.getNumber('quantity');
 
-				if (!name || !quantity) return;
+				if (!name || quantity == null) return;
 
 				const slugifyItem = slugify(name);
 
