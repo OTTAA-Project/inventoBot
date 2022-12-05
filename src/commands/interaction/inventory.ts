@@ -1,6 +1,6 @@
 import { CommandBuilder } from 'discord';
 import { InventoryItemModel } from 'entities';
-import { AttachmentBuilder, EmbedBuilder } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { convertToExcel } from '../../common/excel';
 
 function slugify(text: string) {
@@ -132,6 +132,11 @@ export default new CommandBuilder()
 			.setDescriptionLocalization('es-ES', 'Exporta tu inventario');
 	})
 	.setCallback(async ({ interaction }) => {
+		if (interaction.channelId !== '1045776959042486353')
+			return await interaction.reply(
+				`Este canal no puede ser usado para esto! Usa <#1045776959042486353> 💁🏼`
+			);
+
 		const subcommand = interaction.options.getSubcommand();
 
 		switch (subcommand) {
@@ -183,7 +188,7 @@ export default new CommandBuilder()
 						quantity
 					});
 				}
-				return await interaction.reply(`Added ${quantity} ${name} to your inventory`);
+				return await interaction.reply(`Se añado ${quantity} ${name} al inventario`);
 			}
 			case 'remove': {
 				const name = interaction.options.getString('name');
@@ -201,7 +206,7 @@ export default new CommandBuilder()
 				} else {
 					return await interaction.reply(`No se encontró ${name} en el inventario`);
 				}
-				return await interaction.reply(`Removed ${name} from your inventory`);
+				return await interaction.reply(`Se borró ${name} del inventario`);
 			}
 			case 'clear': {
 				const items = await InventoryItemModel.find({
@@ -215,7 +220,7 @@ export default new CommandBuilder()
 					await item.save();
 				}
 
-				return await interaction.reply(`Cleared ${items.length} items from your inventory`);
+				return await interaction.reply(`Se limpiaron ${items.length} items del inventario`);
 			}
 			case 'edit': {
 				const name = interaction.options.getString('name');
@@ -234,7 +239,7 @@ export default new CommandBuilder()
 				} else {
 					return await interaction.reply(`No se encontró ${name} en el inventario`);
 				}
-				return await interaction.reply(`Edited ${name} from your inventory`);
+				return await interaction.reply(`Se editó ${name} del inventario 🌟`);
 			}
 			case 'export': {
 				const items = await InventoryItemModel.find({
@@ -247,7 +252,12 @@ export default new CommandBuilder()
 								items.map(({ name, quantity, createdAt }) => ({
 									nombre: name,
 									cantidad: quantity,
-									['creado el']: createdAt.toISOString().split('T')[0]!.split('-').reverse().join('/')
+									['creado el']: createdAt
+										.toISOString()
+										.split('T')[0]!
+										.split('-')
+										.reverse()
+										.join('/')
 								}))
 							),
 							name: 'inventory.xlsx'
